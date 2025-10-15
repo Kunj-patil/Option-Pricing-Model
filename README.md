@@ -16,8 +16,7 @@ A robust, interactive web application for **European option pricing and visualiz
 
 **🌐 Live Demo:**  
 The application is deployed and accessible at:  
-[https://option-pricing-model-if5f.onrender.com/]_(https://option-pricing-model-if5f.onrender.com/)
-
+[https://option-pricing-model-if5f.onrender.com/]
 ## 🚀 Features
 
 - **Multi-Model Support**  
