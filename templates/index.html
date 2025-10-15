@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="{{ url_for('static', filename='download.png') }}" type="image/png">
+  <title>Option Pricing Calculator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+  <div class="toggle-container">
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="themeSwitch" />
+      <label class="form-check-label" for="themeSwitch" id="themeLabel">🌙 Dark Mode</label>
+    </div>
+  </div>
+
+  <div id="sidebar" class="sidebar">
+    <div class="btn-group mb-3" role="group" aria-label="Input Mode Toggle">
+      <button type="button" class="btn btn-outline-primary" id="customModeBtn">Custom Mode</button>
+      <button type="button" class="btn btn-outline-success" id="liveModeBtn">Live Mode</button>
+    </div>
+    <h4 class="mb-3">Option Parameters</h4>
+
+    <!-- SINGLE FORM: (Inputs for BOTH modes inside, but only one visible at a time) -->
+    <form method="POST" class="row g-3">
+      <!-- Hidden mode tracker -->
+      <input type="hidden" id="input_mode" name="input_mode" value="custom" />
+
+      <!-- Custom Data Mode Fields -->
+      <div id="customForm">
+        <div class="form-section">
+          <label>Stock Price (S)</label>
+          <input class="form-control" name="S" value="{{ form_data.get('S','') }}" />
+        </div>
+        <div class="form-section">
+          <label>Strike Price (K)</label>
+          <input class="form-control" name="K" value="{{ form_data.get('K','') }}" />
+        </div>
+        <div class="mb-3">
+          <label for="expiry_live" class="form-label">Expiry Date</label>
+          <input type="date" class="form-control" id="expiry_custom" name="expiry_custom"
+            value="{{ form_data.get('expiry_custom', '') }}">
+        </div>
+        <div class="form-section">
+          <label>Risk-Free Rate (r)</label>
+          <input class="form-control" name="r" value="{{ form_data.get('r','') }}" />
+        </div>
+        <div class="form-section">
+          <label>Volatility (σ)</label>
+          <input class="form-control" name="sigma" value="{{ form_data.get('sigma','') }}" />
+        </div>
+
+        <div id="heston-params" style="display: none">
+          <label>κ (Mean Reversion Rate)</label>
+          <input type="number" step="0.01" class="form-control" name="kappa" value="1.5" />
+          <label>θ (Long-run Variance)</label>
+          <input type="number" step="0.01" class="form-control" name="theta" value="0.04" />
+          <label>σ (Volatility of Volatility)</label>
+          <input type="number" step="0.01" class="form-control" name="sigma_h" value="0.3" />
+          <label>ρ (Correlation)</label>
+          <input type="number" step="0.01" class="form-control" name="rho" value="-0.7" />
+          <label>v₀ (Initial Variance)</label>
+          <input type="number" step="0.01" class="form-control" name="v0" value="0.04" />
+        </div>
+        <div class="form-section">
+          <label>Pricing Model</label>
+          <select class="form-select" name="model" id="model-select">
+            <option value="binomial">Binomial Tree</option>
+            <option value="black_scholes">Black-Scholes</option>
+            <option value="heston">Heston</option>
+          </select>
+        </div>
+        <div class="form-section" id="steps-container">
+          <label>Number of Steps (for Binomial only)</label>
+          <input type="number" class="form-control" name="steps" value="100" min="1" />
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="show_heatmap" id="show_heatmap" />
+          <label class="form-check-label" for="show_heatmap">
+            Show Heatmap (Only for Black-Scholes and Heston)
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Calculate</button>
+      </div>
+
+      <!-- Live Data Mode Fields -->
+      <div id="liveForm" class="d-none">
+        <div class="mb-3">
+          <label for="ticker" class="form-label">Ticker Symbol (Yahoo Finance)</label>
+          <input type="text" class="form-control" id="ticker" name="ticker" placeholder="e.g. AAPL"
+            value="{{ form_data.get('ticker', '') }}">
+        </div>
+        <div class="mb-3">
+          <label for="K_live" class="form-label">Strike Price (K)</label>
+          <input type="number" step="any" class="form-control" id="K_live" name="K_live"
+            value="{{ form_data.get('K_live', '') }}">
+        </div>
+        <div class="mb-3">
+          <label for="expiry_live" class="form-label">Expiry Date</label>
+          <input type="date" class="form-control" id="expiry_live" name="expiry_live"
+            value="{{ form_data.get('expiry_live', '') }}">
+        </div>
+        <div class="mb-3">
+          <label for="r_live" class="form-label">Risk-Free Rate (%)</label>
+          <input type="number" step="any" class="form-control" id="r_live" name="r_live"
+            value="{{ form_data.get('r_live', '') }}">
+        </div>
+        <div class="mb-3">
+          <label for="sigma_live" class="form-label">Volatility (%)</label>
+          <input type="number" step="any" class="form-control" id="sigma_live" name="sigma_live"
+            value="{{ form_data.get('sigma_live', '') }}">
+          <div class="text">(Leave blank to auto-fetch from live data.)</div>
+        </div>
+        <button type="submit" class="btn btn-success">Calculate</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="toggleSidebarBtn" class="btn btn-secondary btn-sm">❌</div>
+  <div id="main-content-wrapper">
+    <div id="page-content-wrapper">
+      <h2 id="current-model-heading" class="mb-3 text-center">Option Pricing Model</h2>
+      {% if call_price is not none and put_price is not none %}
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="price-card call-card shadow-sm p-3 rounded text-center">
+            <h5 class="text-success mb-2">📈 Call Option Price</h5>
+            <h4 class="fw-bold">₹{{ call_price }}</h4>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="price-card put-card shadow-sm p-3 rounded text-center">
+            <h5 class="text-danger mb-2">📉 Put Option Price</h5>
+            <h4 class="fw-bold">₹{{ put_price }}</h4>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% if plot_path %}
+      <h5 class="text-center">Option Price vs Steps (Binomial)</h5>
+      <img src="{{ plot_path }}" class="plot-image" alt="Option Price Plot" />
+      {% endif %}
+      {% if bs_plot_path %}
+      <h5 class="text-center">Option Price vs Stock Price (Black-Scholes)</h5>
+      <img src="{{ bs_plot_path }}" class="plot-image" alt="BS Plot" />
+      {% endif %}
+      {% if heatmap_call_path %}
+  <h5 class="text-center">Call Option Heatmap</h5>
+  <img src="{{ heatmap_call_path }}" class="plot-image" alt="Call Heatmap">
+{% endif %}
+{% if heatmap_put_path %}
+  <h5 class="text-center">Put Option Heatmap</h5>
+  <img src="{{ heatmap_put_path }}" class="plot-image" alt="Put Heatmap">
+{% endif %}
+
+
+      {% if s_plot_path %}
+      <h5 class="text-center">Option Price vs Stock Price (Heston)</h5>
+      <img src="{{ s_plot_path }}" class="plot-image" alt="Heston S" />
+      {% endif %}
+      {% if rho_plot_path %}
+      <h5 class="text-center">Option Price vs Correlation (ρ)</h5>
+      <img src="{{ rho_plot_path }}" class="plot-image" alt="Heston Rho" />
+      {% endif %}
+      {% if error %}
+      <div class="alert alert-danger mt-3">{{ error }}</div>
+      {% endif %}
+
+    </div>
+    <div id="formLoader" class="loader-overlay d-none">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p id="loaderText">Processing...</p>
+    </div>
+    <footer class="text-center mt-4">
+      Made by NS &nbsp;
+      <a href="https://www.linkedin.com/in/nitin-shekhar" target="_blank">
+        <i class="fab fa-linkedin fa-lg me-2"></i>
+      </a>
+      <a href="https://github.com/shekharnitin" target="_blank">
+        <i class="fab fa-github fa-lg"></i>
+      </a>
+    </footer>
+  </div>
+
+  <script>
+    const customBtn = document.getElementById('customModeBtn');
+    const liveBtn = document.getElementById('liveModeBtn');
+    const customForm = document.getElementById('customForm');
+    const liveForm = document.getElementById('liveForm');
+    const inputMode = document.getElementById('input_mode');
+
+    customBtn.addEventListener('click', () => {
+      customBtn.classList.add('active');
+      liveBtn.classList.remove('active');
+      customForm.classList.remove('d-none');
+      liveForm.classList.add('d-none');
+      inputMode.value = "custom";
+    });
+    liveBtn.addEventListener('click', () => {
+      liveBtn.classList.add('active');
+      customBtn.classList.remove('active');
+      customForm.classList.add('d-none');
+      liveForm.classList.remove('d-none');
+      inputMode.value = "live";
+    });
+
+    const switchInput = document.getElementById("themeSwitch");
+    const themeLabel = document.getElementById("themeLabel");
+    const savedTheme = localStorage.getItem("theme");
+    const useDark = savedTheme === "dark";
+
+    if (useDark) {
+      document.body.classList.add("dark-mode");
+      switchInput.checked = true;
+      themeLabel.textContent = "☀️ Light Mode";
+    } else {
+      document.body.classList.remove("dark-mode");
+      switchInput.checked = false;
+      themeLabel.textContent = "🌙 Dark Mode";
+    }
+
+    switchInput.addEventListener("change", () => {
+      const isDark = switchInput.checked;
+      document.body.classList.toggle("dark-mode", isDark);
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+      themeLabel.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+    });
+
+    const toggleBtn = document.getElementById("toggleSidebarBtn");
+    const sidebar = document.getElementById("sidebar");
+    const content = document.getElementById("page-content-wrapper");
+
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+      toggleBtn.textContent = sidebar.classList.contains("hidden") ? "☰" : "❌";
+    });
+
+    const form = document.querySelector("form");
+    const heatmapCheckbox = document.getElementById("show_heatmap");
+    const loader = document.getElementById("formLoader");
+    const loaderText = document.getElementById("loaderText");
+
+    form.addEventListener("submit", () => {
+      if (heatmapCheckbox && heatmapCheckbox.checked) {
+        loaderText.textContent = "Generating Heatmap...";
+      } else {
+        loaderText.textContent = "Calculating Option Prices...";
+      }
+      loader.classList.remove("d-none");
+    });
+
+    const modelSelect = document.getElementById("model-select");
+    const stepsContainer = document.getElementById("steps-container");
+    const hestonParams = document.getElementById("heston-params");
+
+    function toggleModelInputs() {
+      const model = modelSelect.value;
+      stepsContainer.style.display = model === "binomial" ? "block" : "none";
+      hestonParams.style.display = model === "heston" ? "block" : "none";
+      // Update model heading
+      const modelNameMap = {
+        binomial: "Binomial Tree",
+        black_scholes: "Black-Scholes",
+        heston: "Heston"
+      };
+    }
+    modelSelect.addEventListener("change", toggleModelInputs);
+    // On page load, keep the mode selected
+
+
+    function setActiveMode(mode) {
+      if (mode === "live") {
+        inputMode.value = "live";
+
+        liveBtn.classList.add("btn-success");
+        liveBtn.classList.remove("btn-outline-success");
+
+        customBtn.classList.remove("btn-primary");
+        customBtn.classList.add("btn-outline-primary");
+
+        liveBtn.classList.add("active");
+        customBtn.classList.remove("active");
+
+        liveForm.classList.remove("d-none");
+        customForm.classList.add("d-none");
+      } else {
+        inputMode.value = "custom";
+
+        customBtn.classList.add("btn-primary");
+        customBtn.classList.remove("btn-outline-primary");
+
+        liveBtn.classList.remove("btn-success");
+        liveBtn.classList.add("btn-outline-success");
+
+        customBtn.classList.add("active");
+        liveBtn.classList.remove("active");
+
+        customForm.classList.remove("d-none");
+        liveForm.classList.add("d-none");
+      }
+    }
+
+    // Button listeners
+    customBtn.addEventListener("click", () => setActiveMode("custom"));
+    liveBtn.addEventListener("click", () => setActiveMode("live"));
+
+    // On page load, use the server-passed mode
+    window.onload = () => {
+      toggleModelInputs();
+      const currentMode = "{{ form_data.get('input_mode', 'custom') }}";
+      setActiveMode(currentMode);
+    };
+
+
+  </script>
+</body>
+
+</html>
