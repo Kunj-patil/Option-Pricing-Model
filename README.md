@@ -1,72 +1,85 @@
-Option Pricing Calculator
-A robust, interactive web application for European option pricing and visualization using cutting-edge quantitative models, suitable for financial professionals, quantitative researchers, and students. Developed with an emphasis on clarity, flexibility, and user experience.
+# Option Pricing Calculator
 
-📚 Table of Contents
-Live Demo
-Features
-Tech Stack
-Screenshots
-Getting Started
-Option Pricing Models
-Folder Structure
-License
-Connect
-🌐 Live Demo:
-The application is deployed and accessible at:
-https://option-pricing-model.onrender.com/
+A robust, interactive web application for **European option pricing and visualization** using cutting-edge quantitative models, suitable for financial professionals, quantitative researchers, and students. Developed with an emphasis on clarity, flexibility, and user experience.
 
-🚀 Features
-Multi-Model Support
-Calculate Call and Put option prices with:
+## 📚 Table of Contents
 
-Binomial Tree Model
-Black-Scholes Model
-Heston Stochastic Volatility Model
-Live Mode and Custom Mode
+- [Live Demo](#-live-demo)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Screenshots](#-screenshots)
+- [Getting Started](#getting-started)
+- [Option Pricing Models](#option-pricing-models)
+- [Folder Structure](#folder-structure)
+- [License](#license)
+- [Connect](#connect)
 
-Live Mode allows you to fetch live market data using yfinance.
-Custom Mode empowers you to input each parameter manually.
-Rich Visualizations
+**🌐 Live Demo:**  
+The application is deployed and accessible at:  
+[https://option-pricing-model.onrender.com/](https://option-pricing-model.onrender.com/)
 
-Price vs. Stock Price plots
-Price vs. Number of Steps (Binomial Model)
-Price vs. Correlation (Heston Model)
-Heatmaps for Black-Scholes & Heston models
-Dynamic, interactive Matplotlib-based charts
-Modern Responsive UI
+## 🚀 Features
 
-Supports Light/Dark mode
-Collapsible parameter sidebar
-Custom scrollbars & theme-based styles
-User-Friendly & Educational
+- **Multi-Model Support**  
+  Calculate **Call** and **Put** option prices with:
+  - **Binomial Tree Model**
+  - **Black-Scholes Model**
+  - **Heston Stochastic Volatility Model**
 
-Intuitive controls and clear, guided parameter selection
-Real-time feedback on pricing model parameter changes
-🛠️ Tech Stack
-Frontend	Backend	Visualization	Models
-HTML5, CSS3	Python (Flask)	Matplotlib, NumPy	Binomial, Black-Scholes, Heston
-Bootstrap 5			
-Getting Started
-Prerequisites:
+- **Live Mode and Custom Mode**
+  - Live Mode allows you to fetch live market data using yfinance.
+  - Custom Mode empowers you to input each parameter manually.
 
-Python 3.7+
-pip
-Installation & Run:
+- **Rich Visualizations**
+  - Price vs. Stock Price plots
+  - Price vs. Number of Steps (Binomial Model)
+  - Price vs. Correlation (Heston Model)
+  - Heatmaps for Black-Scholes & Heston models
+  - Dynamic, interactive Matplotlib-based charts
 
+- **Modern Responsive UI**
+  - Supports Light/Dark mode
+  - Collapsible parameter sidebar
+  - Custom scrollbars & theme-based styles
+
+- **User-Friendly & Educational**
+  - Intuitive controls and clear, guided parameter selection
+  - Real-time feedback on pricing model parameter changes
+
+## 🛠️ Tech Stack
+
+| Frontend    | Backend        | Visualization      | Models                            |
+|-------------|---------------|--------------------|------------------------------------|
+| HTML5, CSS3 | Python (Flask)| Matplotlib, NumPy  | Binomial, Black-Scholes, Heston    |
+| Bootstrap 5 |               |                    |                                    |
+
+## Getting Started
+
+**Prerequisites:**
+- Python 3.7+
+- pip
+
+**Installation & Run:**
+
+<pre> bash git clone https://github.com/shekharnitin/Option-Pricing-Model.git 
+<pre>
 bash git clone https://github.com/shekharnitin/Option-Pricing-Model.git 
 cd Option-Pricing-Model 
 pip install -r requirements.txt 
-python app.py  
-Navigate to http://localhost:5000.
+python app.py  </pre>
+@@ -79,29 +80,29 @@
 
-Live Mode is enabled by default.
-Interactively adjust parameters and see results update instantly in both the local version and the deployed app.
-
-Option Pricing Models
-Black-Scholes: Analytical formula for European options, assuming constant volatility and no dividends.
-Binomial Tree: Flexible discrete-time model, visualizing convergence and the effect of step size.
-Heston Model: Accounts for stochastic volatility, pricing options in more realistic markets.
-📂 Folder Structure
+## 📂 Folder Structure
+<pre>
+Option-Pricing-Model/<br>
+│<br>
+├── app.py # Flask app entry point<br>
+├── black_scholes.py # Black-Scholes implementation<br>
+├── binomial_model.py # Binomial Model implementation<br>
+├── heston_model.py # Heston Model implementation<br>
+├── requirements.txt<br>
+├── static/ # CSS, assets<br>
+├── templates/ # HTML template<br>
 Option-Pricing-Model/
 │
 ├── app.py # Flask app entry point
@@ -77,14 +90,19 @@ Option-Pricing-Model/
 ├── static/ # CSS, assets
 ├── templates/ # HTML template
 └── README.md
-💡 Why This Project Stands Out
-Clear, Modularized Financial Engineering Code
-Practical Application of Mathematical Finance Theory
-Live Mode for Real-Time Financial Analysis
-Rich, Modern Visualizations
-Designed for Both Professional & Educational Use
-Clean, Scalable Flask Architecture
-Conforms to Software Engineering Best Practices
-🌐 Connect
-LinkedIn
-GitHub
+</pre>
+
+## 💡 Why This Project Stands Out
+
+- **Clear, Modularized Financial Engineering Code**
+- **Practical Application of Mathematical Finance Theory**
+- **Live Mode for Real-Time Financial Analysis**
+- **Rich, Modern Visualizations**
+- **Designed for Both Professional & Educational Use**
+- **Clean, Scalable Flask Architecture**
+- **Conforms to Software Engineering Best Practices**
+
+## 🌐 Connect
+
+
+- [GitHub](https://github.com/Kunj-patil)
